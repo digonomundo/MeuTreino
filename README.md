@@ -17,6 +17,7 @@ Documentação unificada do aplicativo MeuTreino. Este documento reúne a visão
 - [Limitações e cuidados](#limitações-e-cuidados)
 - [Documentação complementar](#documentação-complementar)
 - [Metodologia e validação acadêmica](#metodologia-e-validação-acadêmica)
+- [Contribuir e contato](#contribuir-e-contato)
 
 ## Visão geral
 
@@ -327,6 +328,9 @@ Os documentos a seguir detalham aspectos específicos da implementação:
 - [Diagrama essencial de classes](./docs/plantuml/diagrama-classes-essencial.puml)
 - [Diagrama de sequência do sistema](./docs/plantuml/diagrama-sequencia-sistema.puml)
 - [Organização da arquitetura](./docs/plantuml/organizacao-arquitetura.puml)
+- [Código de Conduta](./CODE_OF_CONDUCT.md)
+- [Guia de Contribuição](./CONTRIBUTING.md)
+- [Política de Segurança](./SECURITY.md)
 
 ## Metodologia e validação acadêmica
 
@@ -339,3 +343,12 @@ O desenvolvimento descrito no projeto passou pela concepção do problema, organ
 5. Testes unitários, build Android, compilação de testes instrumentados e lint.
 
 A validação automatizada verifica regras de modelo e catálogo e assegura que o projeto compile. Isso não equivale a teste de usabilidade com participantes.
+
+## Contribuir e contato
+
+Contribuições, relatos de bugs e sugestões devem seguir o [Guia de Contribuição](./CONTRIBUTING.md) e o [Código de Conduta](./CODE_OF_CONDUCT.md). Para reportar uma vulnerabilidade, use o canal privado descrito na [Política de Segurança](./SECURITY.md), sem publicar detalhes sensíveis em uma issue.
+
+Para contato sobre o projeto:
+
+- E-mail: [rodrigo@digonomundo.com](mailto:rodrigo@digonomundo.com)
+- LinkedIn: [linkedin.com/in/digonomundo](https://www.linkedin.com/in/digonomundo/)
