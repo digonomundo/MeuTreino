@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#187A63</color>
+    <color name="primary_dark">#145C4C</color>
+    <color name="primary_light">#D8F3EC</color>
+    <color name="accent">#187A63</color>
+
+    <color name="background_dark">#F5F7F6</color>
+    <color name="surface_dark">#FFFFFF</color>
+    <color name="surface_variant">#EEF2F0</color>
+    <color name="card_border">#DDE5E1</color>
+
+    <color name="text_primary">#17231F</color>
+    <color name="text_secondary">#63716B</color>
+    <color name="text_hint">#7B8982</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="status_green">#187A63</color>
+    <color name="status_yellow">#A86612</color>
+    <color name="status_red">#B42318</color>
+
+    <!-- Legacy color aliases -->
+    <color name="roxo">#FFFFFF</color>
+    <color name="green">#187A63</color>
+    <color name="red">#B42318</color>
+    <color name="yellow">#A86612</color>
+    <color name="cinza">#EEF2F0</color>
+    <color name="cinzaClaro">#63716B</color>
+    <color name="Azul">#187A63</color>
+    <color name="purple_200">#D8F3EC</color>
+    <color name="purple_500">#187A63</color>
+    <color name="purple_700">#145C4C</color>
+    <color name="teal_200">#D8F3EC</color>
+    <color name="teal_700">#145C4C</color>
+</resources>

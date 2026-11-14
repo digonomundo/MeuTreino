@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.meutreino.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_nav_peito"
+            app:destination="@id/nav_peito" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_abdomen"
+            app:destination="@id/nav_abdomen" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_pernas"
+            app:destination="@id/nav_pernas" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_telaUsuario"
+        android:name="com.example.meutreino.ui.profile.UserProfileFragment"
+        android:label="@string/menu_perfil_usuario"
+        tools:layout="@layout/fragment_tela_usuario" />
+
+    <fragment
+        android:id="@+id/nav_conta_seguranca"
+        android:name="com.example.meutreino.ui.profile.AccountSecurityFragment"
+        android:label="@string/menu_seguranca_conta"
+        tools:layout="@layout/fragment_account_security" />
+
+    <fragment
+        android:id="@+id/nav_tela_video"
+        android:name="com.example.meutreino.ui.video.VideoPlayerFragment"
+        android:label="@string/menu_tela_video"
+        tools:layout="@layout/fragment_video_treinos">
+        <argument
+            android:name="videoKey"
+            app:argType="string"
+            android:defaultValue="video1" />
+    </fragment>
+
+    <!-- TIPOS DE TREINOS -->
+    <fragment
+        android:id="@+id/nav_peito"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_peito"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="peito" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_abdomen"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_abdomen"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="abdomen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_bracos"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_bracos"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="bracos" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_costas"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_costas"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="costas" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_ombros"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_ombros"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="ombros" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_pernas"
+        android:name="com.example.meutreino.ui.workout.WorkoutCategoryFragment"
+        android:label="@string/menu_pernas"
+        tools:layout="@layout/fragment_workout_category">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="pernas" />
+    </fragment>
+
+    <!-- MONTAGENS DE TREINOS -->
+    <fragment
+        android:id="@+id/nav_montagem_peito"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_peito"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="peito" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_montagem_abdomen"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_abdomen"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="abdomen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_montagem_bracos"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_bracos"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="bracos" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_montagem_costas"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_costas"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="costas" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_montagem_ombro"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_ombros"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="ombros" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_montagem_pernas"
+        android:name="com.example.meutreino.ui.workout.WorkoutSetupFragment"
+        android:label="@string/menu_montagem_pernas"
+        tools:layout="@layout/fragment_workout_setup">
+        <argument
+            android:name="categoryKey"
+            app:argType="string"
+            android:defaultValue="pernas" />
+    </fragment>
+
+</navigation>
