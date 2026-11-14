@@ -2,6 +2,6 @@
 /build/
 .DS_Store
 /local.properties
-/app/google-services.json
 /.idea/assetWizardSettings.xml
 /.vscode/settings.json
+
