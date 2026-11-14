@@ -1,0 +1,351 @@
+@startuml
+title MeuTreino — diagrama de classes GERAL
+left to right direction
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "data.model" {
+    class User {
+        +id: String
+        +nome: String
+        +peso: double
+        +altura: double
+        +idade: int
+        +dataNascimento: String
+        +getIdade(): int
+        {static} +calculateAge(isoDate: String): int
+        +getImc(): double
+        +getConsumoAguaLitros(): double
+        +getImcDescricao(): String
+    }
+
+    class Exercise {
+        +id: String
+        +firestoreKey: String
+        +titulo: String
+        +modalidade: String
+        +categoria: WorkoutCategory
+        +imageResId: int
+        +videoKey: String
+        +instrucoes: String
+        +isSelecionado: boolean
+        +seriesTotal: int
+        +seriesConcluidas: int
+        +cargaKg: double
+        +tempoDescansoSegundos: int
+        +isCompleted: boolean
+        +timerRunning: boolean
+        +elapsedTimeMillis: long
+        +timerStartedAtRealtime: long
+        +isFinished(): boolean
+        +getElapsedTimeMillis(nowRealtime: long): long
+        +copy(): Exercise
+    }
+
+    class ExerciseCatalog {
+        {static} +ALL_EXERCISES: List<Exercise>
+        {static} +getByCategory(category: WorkoutCategory): List<Exercise>
+        {static} +getByVideoKey(videoKey: String): Exercise
+    }
+
+    enum WorkoutCategory {
+        PEITO
+        ABDOMEN
+        BRACOS
+        COSTAS
+        OMBROS
+        PERNAS
+        +title: String
+        +firestoreKey: String
+        {static} +fromKey(key: String): WorkoutCategory
+    }
+}
+
+package "data.repository" {
+    class AuthRepository {
+        -auth: FirebaseAuth
+        +getCurrentUser(): FirebaseUser
+        +isUserLoggedIn(): boolean
+        +login(email: String, password: String, callback): void
+        +register(email: String, password: String, callback): void
+        +resetPassword(email: String, callback): void
+        +logout(): void
+    }
+    interface "AuthRepository.ResultCallback" as AuthResultCallback {
+        +onResult(success: boolean, error: String): void
+    }
+
+    class UserRepository {
+        -db: FirebaseFirestore
+        -auth: FirebaseAuth
+        +getUserProfile(callback): void
+        +saveUserProfile(nome, peso, altura, dataNascimento, callback): void
+        +saveSelectedVideoKey(videoKey, callback): void
+    }
+    interface "UserRepository.ProfileCallback" as ProfileCallback {
+        +onResult(user: User, error: String): void
+    }
+    interface "UserRepository.SaveCallback" as UserSaveCallback {
+        +onResult(success: boolean, error: String): void
+    }
+
+    class WorkoutRepository {
+        -db: FirebaseFirestore
+        -auth: FirebaseAuth
+        +getExercisesForCategory(category, callback): void
+        +toggleExerciseSelection(exercise, selected, callback): void
+        +saveSeriesTotal(exercise, total, callback): void
+    }
+    interface "WorkoutRepository.ExercisesCallback" as ExercisesCallback {
+        +onResult(exercises: List<Exercise>, error: String): void
+    }
+    interface "WorkoutRepository.SaveCallback" as WorkoutSaveCallback {
+        +onResult(success: boolean, error: String): void
+    }
+
+    class AccountSecurityRepository {
+        -auth: FirebaseAuth
+        -db: FirebaseFirestore
+        +getCurrentEmail(): String
+        +changeEmail(currentPassword, newEmail, callback): void
+        +changePassword(currentPassword, newPassword, callback): void
+        +deleteAccount(currentPassword, callback): void
+    }
+    interface "AccountSecurityRepository.OperationCallback" as OperationCallback {
+        +onResult(success: boolean, message: String): void
+    }
+}
+
+package "ui.auth" {
+    class AuthViewModel {
+        -authRepository: AuthRepository
+        -authState: LiveData<AuthState>
+        +getAuthState(): LiveData<AuthState>
+        +isUserLoggedIn(): boolean
+        +login(email, password): void
+        +register(email, password): void
+        +resetPassword(email): void
+        +logout(): void
+    }
+    class "AuthViewModel.AuthState" as AuthState {
+        +status: AuthViewModel.Status
+        +message: String
+    }
+    enum "AuthViewModel.Status" as AuthStatus {
+        IDLE
+        LOADING
+        SUCCESS
+        PASSWORD_RESET_SENT
+        ERROR
+    }
+
+    class LoginActivity
+    class RegisterActivity
+    class PasswordResetActivity
+    class UserDataInputActivity {
+        +EXTRA_EDIT_PROFILE: String
+        -editMode: boolean
+        -selectedBirthDateIso: String
+        -showBirthDatePicker(): void
+        -setBirthDate(isoDate: String): void
+    }
+}
+
+package "ui.profile" {
+    class UserProfileViewModel {
+        -userRepository: UserRepository
+        -userState: LiveData<UserState>
+        +getUserState(): LiveData<UserState>
+        +loadUserProfile(): void
+        +saveUserProfile(nome, peso, altura, dataNascimento): void
+        +selectVideo(videoKey, onComplete): void
+    }
+    class "UserProfileViewModel.UserState" as UserState {
+        +status: UserProfileViewModel.Status
+        +user: User
+        +message: String
+    }
+    enum "UserProfileViewModel.Status" as UserStatus {
+        IDLE
+        LOADING
+        SUCCESS
+        SAVED
+        ERROR
+    }
+
+    class AccountSecurityViewModel {
+        -repository: AccountSecurityRepository
+        -state: LiveData<State>
+        +getState(): LiveData<State>
+        +getCurrentEmail(): String
+        +changeEmail(currentPassword, newEmail): void
+        +changePassword(currentPassword, newPassword): void
+        +deleteAccount(currentPassword): void
+    }
+    class "AccountSecurityViewModel.State" as AccountSecurityState {
+        +status: AccountSecurityViewModel.Status
+        +message: String
+    }
+    enum "AccountSecurityViewModel.Status" as SecurityStatus {
+        IDLE
+        LOADING
+        SUCCESS
+        ERROR
+    }
+
+    class UserProfileFragment
+    class AccountSecurityFragment
+}
+
+package "ui.home" {
+    class HomeFragment
+}
+
+package "ui.main" {
+    class MainActivity
+}
+
+package "ui.splash" {
+    class SplashActivity
+}
+
+package "ui.video" {
+    class VideoPlayerFragment {
+        -player: ExoPlayer
+        -videoUri: Uri
+        -loadExerciseVideo(videoKey: String): void
+        -initializePlayer(uri: Uri): void
+        -releasePlayer(): void
+    }
+}
+
+package "ui.workout" {
+    class WorkoutViewModel {
+        -workoutRepository: WorkoutRepository
+        -exercisesState: LiveData<ExercisesState>
+        +getExercisesState(): LiveData<ExercisesState>
+        +loadExercises(category): void
+        +toggleExercise(exercise, selected): void
+        +saveSeriesTotal(exercise, total): void
+    }
+    class "WorkoutViewModel.ExercisesState" as ExercisesState {
+        +status: WorkoutViewModel.Status
+        +exercises: List<Exercise>
+        +message: String
+    }
+    enum "WorkoutViewModel.Status" as WorkoutStatus {
+        IDLE
+        LOADING
+        SUCCESS
+        ERROR
+    }
+
+    class WorkoutCategoryFragment {
+        -adapter: WorkoutAdapter
+        -category: WorkoutCategory
+    }
+    class WorkoutSetupFragment {
+        -adapter: WorkoutAdapter
+    }
+    class WorkoutAdapter {
+        -setupMode: boolean
+        -exercises: List<Exercise>
+        +submitList(exercises): void
+    }
+}
+
+class "androidx.appcompat.app.AppCompatActivity" as AppCompatActivity <<Android>>
+class "androidx.fragment.app.Fragment" as Fragment <<Android>>
+class "androidx.lifecycle.ViewModel" as ViewModel <<Android>>
+class "androidx.navigation.NavController" as NavController <<AndroidX>>
+class FirebaseAuth <<Firebase>>
+class FirebaseUser <<Firebase>>
+class FirebaseFirestore <<Firebase>>
+class ExoPlayer <<Media3>>
+
+AppCompatActivity <|-- LoginActivity
+AppCompatActivity <|-- RegisterActivity
+AppCompatActivity <|-- PasswordResetActivity
+AppCompatActivity <|-- UserDataInputActivity
+AppCompatActivity <|-- MainActivity
+AppCompatActivity <|-- SplashActivity
+
+Fragment <|-- HomeFragment
+Fragment <|-- UserProfileFragment
+Fragment <|-- AccountSecurityFragment
+Fragment <|-- VideoPlayerFragment
+Fragment <|-- WorkoutCategoryFragment
+Fragment <|-- WorkoutSetupFragment
+
+ViewModel <|-- AuthViewModel
+ViewModel <|-- UserProfileViewModel
+ViewModel <|-- AccountSecurityViewModel
+ViewModel <|-- WorkoutViewModel
+
+AuthViewModel "1" --> "1" AuthRepository
+AuthViewModel "1" --> "0..1" AuthState
+AuthState --> AuthStatus
+UserProfileViewModel "1" --> "1" UserRepository
+UserProfileViewModel "1" --> "0..1" UserState
+UserState --> UserStatus
+UserState "0..1" --> "0..1" User
+AccountSecurityViewModel "1" --> "1" AccountSecurityRepository
+AccountSecurityViewModel "1" --> "0..1" AccountSecurityState
+AccountSecurityState --> SecurityStatus
+WorkoutViewModel "1" --> "1" WorkoutRepository
+WorkoutViewModel "1" --> "0..1" ExercisesState
+ExercisesState "1" --> "0..*" Exercise
+
+LoginActivity --> AuthViewModel
+RegisterActivity --> AuthViewModel
+PasswordResetActivity --> AuthViewModel
+UserDataInputActivity --> UserProfileViewModel
+HomeFragment --> UserProfileViewModel
+UserProfileFragment --> UserProfileViewModel
+UserProfileFragment --> AuthViewModel
+AccountSecurityFragment --> AccountSecurityViewModel
+AccountSecurityFragment --> AuthViewModel
+WorkoutCategoryFragment --> WorkoutViewModel
+WorkoutCategoryFragment --> UserProfileViewModel
+WorkoutCategoryFragment --> WorkoutAdapter
+WorkoutSetupFragment --> WorkoutViewModel
+WorkoutSetupFragment --> WorkoutAdapter
+MainActivity --> NavController : configura host e drawer
+SplashActivity --> AuthRepository
+VideoPlayerFragment --> ExoPlayer
+VideoPlayerFragment ..> ExerciseCatalog
+
+AuthRepository "1" --> "1" FirebaseAuth
+AuthRepository ..> FirebaseUser
+UserRepository "1" --> "1" FirebaseAuth
+UserRepository "1" --> "1" FirebaseFirestore
+WorkoutRepository "1" --> "1" FirebaseAuth
+WorkoutRepository "1" --> "1" FirebaseFirestore
+AccountSecurityRepository "1" --> "1" FirebaseAuth
+AccountSecurityRepository "1" --> "1" FirebaseFirestore
+
+AuthRepository ..> AuthResultCallback
+UserRepository ..> ProfileCallback
+UserRepository ..> UserSaveCallback
+WorkoutRepository ..> ExercisesCallback
+WorkoutRepository ..> WorkoutSaveCallback
+AccountSecurityRepository ..> OperationCallback
+
+UserRepository ..> User : lê / grava
+WorkoutRepository ..> ExerciseCatalog
+WorkoutRepository ..> Exercise
+ExerciseCatalog "1" o-- "0..*" Exercise : catálogo local
+Exercise "0..*" --> "1" WorkoutCategory
+WorkoutAdapter "1" o-- "0..*" Exercise : apresenta
+
+note bottom of User
+    Firestore: usuarios/{uid}
+    Perfil e preferências compartilham
+    o mesmo documento.
+end note
+
+note bottom of Exercise
+    Estado de sessão (carga, séries concluídas
+    e cronômetros) não é histórico persistido.
+end note
+@enduml

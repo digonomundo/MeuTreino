@@ -1,0 +1,178 @@
+@startuml
+title MeuTreino — diagrama de sequência do sistema
+autonumber
+
+actor "Pessoa usuária" as User
+participant "App MeuTreino" as App
+participant "Firebase Authentication" as Auth
+database "Cloud Firestore" as Store
+participant "E-mail do Firebase" as Email
+collections "Catálogo local" as Catalog
+participant "Media3 / ExoPlayer" as Player
+
+== Inicialização e autenticação ==
+User -> App: abre o aplicativo
+App -> Auth: verifica sessão atual
+alt sessão ativa
+    Auth --> App: usuário autenticado
+    App --> User: abre MainActivity / Home
+else sem sessão
+    Auth --> App: nenhum usuário autenticado
+    App --> User: apresenta LoginActivity
+end
+
+opt cadastro de nova conta
+    User -> App: informa e-mail e senha
+    App -> Auth: cria conta (senha mínima de 6 caracteres)
+    alt cadastro concluído
+        Auth --> App: conta criada e sessão autenticada
+        App --> User: apresenta perfil inicial (pode pular)
+        opt perfil preenchido
+            User -> App: informa nome, peso, altura e nascimento
+            App -> App: valida campos e calcula idade
+            App -> Store: grava usuarios/{uid} com merge
+            Store --> App: resultado da gravação
+        end
+        App --> User: abre Home
+    else falha no cadastro
+        Auth --> App: erro
+        App --> User: informa a falha
+    end
+end
+
+opt login de usuário existente
+    User -> App: informa e-mail e senha
+    App -> Auth: autentica credenciais
+    alt credenciais válidas
+        Auth --> App: autenticação concluída
+        App --> User: abre Home com saudação personalizada
+    else credenciais inválidas
+        Auth --> App: erro
+        App --> User: informa falha de login
+    end
+end
+
+opt recuperação de senha
+    User -> App: informa e-mail
+    App -> Auth: solicita redefinição de senha
+    Auth --> Email: envia mensagem de recuperação
+    Email --> User: link de redefinição
+end
+
+== Perfil ==
+User -> App: abre perfil ou edição
+App -> Store: lê usuarios/{uid}
+Store --> App: nome, peso, altura e data de nascimento
+App -> App: calcula idade, IMC/classificação e estimativa de água
+App --> User: apresenta perfil ou indica dados incompletos
+
+opt salvar alterações do perfil
+    User -> App: informa dados e confirma nascimento
+    App -> App: valida campos e data
+    App -> Store: grava perfil calculado com merge
+    alt gravação concluída
+        Store --> App: confirmação
+        App --> User: apresenta perfil atualizado
+    else falha de gravação
+        Store --> App: erro
+        App --> User: informa que não foi possível salvar
+    end
+end
+
+== Montagem e sessão de treino ==
+User -> App: abre grupo muscular
+App -> Catalog: obtém exercícios da categoria
+Catalog --> App: catálogo local
+App -> Store: lê seleção e séries em usuarios/{uid}
+alt leitura Firestore concluída
+    Store --> App: preferências salvas
+    App --> User: mostra exercícios selecionados
+else falha na leitura Firestore
+    Store --> App: erro
+    App --> User: mostra catálogo local sem preferências remotas
+end
+
+opt ajustar montagem do treino
+    User -> App: seleciona exercício ou altera total de séries
+    App -> Store: grava seleção ou campo firestoreKey + "_seriesTotal"
+    Store --> App: resultado da gravação
+end
+
+opt abrir demonstração de exercício
+    User -> App: toca em ver vídeo
+    App -> Store: grava a chave no campo video
+    Store --> App: resultado da gravação
+    App -> App: navega para VideoPlayerFragment
+    App -> Player: prepara recurso local associado à videoKey
+    alt vídeo mapeado
+        Player --> App: reprodução e controles
+        App --> User: apresenta vídeo e instruções
+    else sem vídeo mapeado ou erro de reprodução
+        Player --> App: recurso indisponível / erro
+        App --> User: apresenta instruções e aviso de indisponibilidade
+    end
+end
+
+opt registrar atividade durante a sessão
+    User -> App: conclui série, informa carga ou inicia cronômetro
+    App -> App: atualiza séries, carga, cronômetro e descanso localmente
+    App --> User: atualiza estado do exercício
+    note over App
+        Carga, séries concluídas e cronômetros não formam
+        um histórico persistido no Firestore.
+    end note
+end
+
+== Alteração de e-mail ==
+User -> App: informa novo e-mail e senha atual
+App -> Auth: reautentica usuário
+alt reautenticação válida
+    Auth --> App: sessão confirmada
+    App -> Auth: solicita verifyBeforeUpdateEmail
+    Auth -> Email: envia link de confirmação
+    Email --> User: link para o novo endereço
+    App --> User: informa que a troca depende da confirmação
+else reautenticação ou operação falhou
+    Auth --> App: erro
+    App --> User: informa a falha sem confirmar a alteração
+end
+
+== Alteração de senha ==
+User -> App: informa senha atual e nova senha duas vezes
+App -> App: valida mínimo de 6 caracteres e confirmação
+App -> Auth: reautentica e solicita updatePassword
+alt operação concluída
+    Auth --> App: confirmação
+    App --> User: informa sucesso
+else senha atual inválida ou operação falhou
+    Auth --> App: erro
+    App --> User: informa falha
+end
+
+== Exclusão de conta ==
+User -> App: solicita exclusão e confirma ação irreversível
+App --> User: solicita senha atual
+User -> App: informa senha atual
+App -> Auth: reautentica usuário
+alt reautenticação válida
+    Auth --> App: sessão confirmada
+    App -> Store: exclui usuarios/{uid}
+    alt documento removido
+        Store --> App: confirmação
+        App -> Auth: exclui usuário Firebase
+        alt usuário removido
+            Auth --> App: confirmação
+            App --> User: encerra sessão e volta ao login
+        else falha ao excluir Firebase Auth
+            Auth --> App: erro (documento Firestore já removido)
+            App --> User: informa que a exclusão não foi concluída
+        end
+    else falha ao excluir documento
+        Store --> App: erro (conta Auth mantida)
+        App --> User: informa a falha
+    end
+else reautenticação inválida
+    Auth --> App: erro
+    App --> User: mantém a conta e informa a falha
+end
+@enduml

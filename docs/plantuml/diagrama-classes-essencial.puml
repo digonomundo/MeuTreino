@@ -1,0 +1,166 @@
+@startuml
+title MeuTreino — diagrama de classes ESSENCIAL
+
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype polyline
+skinparam nodesep 80
+skinparam ranksep 110
+skinparam padding 8
+
+package "Interface" {
+    class SplashActivity
+    class LoginActivity
+    class RegisterActivity
+    class PasswordResetActivity
+    class UserDataInputActivity
+    class MainActivity
+    class HomeFragment
+    class UserProfileFragment
+    class AccountSecurityFragment
+    class WorkoutCategoryFragment
+    class WorkoutSetupFragment
+    class VideoPlayerFragment
+    class WorkoutAdapter
+}
+
+package "ViewModels" {
+    class AuthViewModel {
+        +login(email, password): void
+        +register(email, password): void
+        +resetPassword(email): void
+    }
+    class UserProfileViewModel {
+        +loadUserProfile(): void
+        +saveUserProfile(...): void
+        +selectVideo(videoKey, callback): void
+    }
+    class WorkoutViewModel {
+        +loadExercises(category): void
+        +toggleExercise(exercise, selected): void
+        +saveSeriesTotal(exercise, total): void
+    }
+    class AccountSecurityViewModel {
+        +changeEmail(currentPassword, newEmail): void
+        +changePassword(currentPassword, newPassword): void
+        +deleteAccount(currentPassword): void
+    }
+}
+
+package "Repositórios" {
+    class AuthRepository {
+        +login(email, password, callback): void
+        +register(email, password, callback): void
+        +resetPassword(email, callback): void
+        +logout(): void
+    }
+    class UserRepository {
+        +getUserProfile(callback): void
+        +saveUserProfile(...): void
+    }
+    class WorkoutRepository {
+        +getExercisesForCategory(category, callback): void
+        +toggleExerciseSelection(exercise, selected, callback): void
+        +saveSeriesTotal(exercise, total, callback): void
+    }
+    class AccountSecurityRepository {
+        +changeEmail(currentPassword, newEmail, callback): void
+        +changePassword(currentPassword, newPassword, callback): void
+        +deleteAccount(currentPassword, callback): void
+    }
+}
+
+package "Modelos" {
+    class User {
+        +id: String
+        +nome: String
+        +peso: double
+        +altura: double
+        +dataNascimento: String
+        +getIdade(): int
+        +getImc(): double
+        +getConsumoAguaLitros(): double
+    }
+
+    class Exercise {
+        +id: String
+        +firestoreKey: String
+        +titulo: String
+        +categoria: WorkoutCategory
+        +imageResId: int
+        +videoKey: String
+        +seriesTotal: int
+        +seriesConcluidas: int
+        +cargaKg: double
+        +isFinished(): boolean
+    }
+
+    class ExerciseCatalog {
+        {static} +ALL_EXERCISES: List<Exercise>
+        {static} +getByCategory(category): List<Exercise>
+    }
+
+    enum WorkoutCategory {
+        PEITO
+        ABDOMEN
+        BRACOS
+        COSTAS
+        OMBROS
+        PERNAS
+    }
+}
+
+' Organização horizontal dos packages
+SplashActivity -[hidden]right- AuthViewModel
+AuthViewModel -[hidden]right- AuthRepository
+AuthRepository -[hidden]right- User
+
+class "Firebase Authentication" as FirebaseAuth <<Firebase>>
+class "Cloud Firestore" as Firestore <<Firebase>>
+class "Navigation Component" as Navigation <<AndroidX>>
+class "Media3 / ExoPlayer" as Media3 <<AndroidX>>
+
+SplashActivity --> AuthRepository
+LoginActivity --> AuthViewModel
+RegisterActivity --> AuthViewModel
+PasswordResetActivity --> AuthViewModel
+UserDataInputActivity --> UserProfileViewModel
+MainActivity --> Navigation
+HomeFragment --> UserProfileViewModel
+UserProfileFragment --> UserProfileViewModel
+UserProfileFragment --> AuthViewModel
+AccountSecurityFragment --> AccountSecurityViewModel
+AccountSecurityFragment --> AuthViewModel
+WorkoutCategoryFragment --> WorkoutViewModel
+WorkoutCategoryFragment --> UserProfileViewModel : grava chave do vídeo
+WorkoutSetupFragment --> WorkoutViewModel
+WorkoutCategoryFragment --> WorkoutAdapter
+WorkoutSetupFragment --> WorkoutAdapter
+VideoPlayerFragment --> Media3
+VideoPlayerFragment ..> ExerciseCatalog
+
+AuthViewModel "1" --> "1" AuthRepository
+UserProfileViewModel "1" --> "1" UserRepository
+WorkoutViewModel "1" --> "1" WorkoutRepository
+AccountSecurityViewModel "1" --> "1" AccountSecurityRepository
+
+AuthRepository --> FirebaseAuth
+UserRepository --> FirebaseAuth
+UserRepository --> Firestore
+WorkoutRepository --> Firestore
+AccountSecurityRepository --> FirebaseAuth
+AccountSecurityRepository --> Firestore
+UserRepository ..> User : lê e salva
+WorkoutRepository ..> ExerciseCatalog
+WorkoutRepository ..> Exercise : salva seleção e séries
+ExerciseCatalog "1" o-- "0..*" Exercise
+Exercise "0..*" --> "1" WorkoutCategory
+WorkoutAdapter "1" o-- "0..*" Exercise
+
+note bottom of UserRepository
+    Perfil e preferências no documento
+    usuarios/{uid}.
+end note
+@enduml

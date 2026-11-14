@@ -1,0 +1,193 @@
+@startuml
+allowmixing
+title MeuTreino — organização atual de arquivos e arquitetura
+left to right direction
+skinparam packageStyle rectangle
+
+package "MeuTreino/" {
+    artifact "README.md\nvisão rápida"
+    artifact "readme2.md\ndocumentação completa"
+    artifact "build.gradle\nplugins raiz"
+    artifact "settings.gradle\nmódulo :app"
+    artifact "gradle.properties"
+    artifact ".gitignore"
+    artifact "local.properties\nconfiguração local do SDK"
+
+    package "gradle/wrapper/" {
+        artifact "gradle-wrapper.jar"
+        artifact "gradle-wrapper.properties"
+    }
+
+    package "app/" {
+        artifact "build.gradle\nAGP, SDKs, dependências"
+        artifact "google-services.json\nconfiguração Firebase"
+        artifact "proguard-rules.pro"
+
+        package "src/main/" {
+            artifact "AndroidManifest.xml"
+            artifact "ic_launcher-playstore.png"
+        }
+
+        package "src/main/java/com/example/meutreino/" {
+            package "ui/ — apresentação / MVVM" {
+                package "auth/" {
+                    class "LoginActivity.java" as LoginActivity <<Activity>>
+                    class "RegisterActivity.java" as RegisterActivity <<Activity>>
+                    class "PasswordResetActivity.java" as PasswordResetActivity <<Activity>>
+                    class "UserDataInputActivity.java" as UserDataInputActivity <<Activity>>
+                    class "AuthViewModel.java" as AuthViewModel <<ViewModel>>
+                }
+
+                package "main/" {
+                    class "MainActivity.java" as MainActivity <<Activity>>
+                }
+                package "splash/" {
+                    class "SplashActivity.java" as SplashActivity <<Activity>>
+                }
+                package "home/" {
+                    class "HomeFragment.java" as HomeFragment <<Fragment>>
+                }
+                package "profile/" {
+                    class "UserProfileFragment.java" as UserProfileFragment <<Fragment>>
+                    class "UserProfileViewModel.java" as UserProfileViewModel <<ViewModel>>
+                    class "AccountSecurityFragment.java" as AccountSecurityFragment <<Fragment>>
+                    class "AccountSecurityViewModel.java" as AccountSecurityViewModel <<ViewModel>>
+                }
+                package "workout/" {
+                    class "WorkoutCategoryFragment.java" as WorkoutCategoryFragment <<Fragment>>
+                    class "WorkoutSetupFragment.java" as WorkoutSetupFragment <<Fragment>>
+                    class "WorkoutAdapter.java" as WorkoutAdapter <<Adapter>>
+                    class "WorkoutViewModel.java" as WorkoutViewModel <<ViewModel>>
+                }
+                package "video/" {
+                    class "VideoPlayerFragment.java" as VideoPlayerFragment <<Fragment>>
+                }
+            }
+
+            package "data/" {
+                package "model/" {
+                    class "User.java" as User <<Model>>
+                    class "Exercise.java" as Exercise <<Model>>
+                    class "ExerciseCatalog.java" as ExerciseCatalog <<Local catalog>>
+                    class "WorkoutCategory.java" as WorkoutCategory <<Enum>>
+                }
+                package "repository/" {
+                    class "AuthRepository.java" as AuthRepository <<Repository>>
+                    class "UserRepository.java" as UserRepository <<Repository>>
+                    class "WorkoutRepository.java" as WorkoutRepository <<Repository>>
+                    class "AccountSecurityRepository.java" as AccountSecurityRepository <<Repository>>
+                }
+            }
+        }
+
+        package "src/main/res/" {
+            package "layout/" {
+                artifact "activity_frm_login.xml"
+                artifact "activity_frm_cadastro.xml"
+                artifact "activity_tela_recuperar_senha.xml"
+                artifact "activity_home.xml\nentrada/edição do perfil"
+                artifact "activity_tela_principal.xml"
+                artifact "app_bar_tela_principal.xml"
+                artifact "content_tela_principal.xml"
+                artifact "fragment_home.xml"
+                artifact "fragment_tela_usuario.xml"
+                artifact "fragment_account_security.xml"
+                artifact "fragment_workout_category.xml"
+                artifact "fragment_workout_setup.xml"
+                artifact "fragment_video_treinos.xml"
+                artifact "item_exercise.xml"
+                artifact "nav_header_tela_principal.xml"
+            }
+            package "navigation/" {
+                artifact "mobile_navigation.xml"
+            }
+            package "menu/" {
+                artifact "activity_tela_principal_drawer.xml"
+            }
+            package "values/" {
+                artifact "strings.xml"
+                artifact "colors.xml"
+                artifact "themes.xml"
+                artifact "dimens.xml"
+            }
+            package "drawable/, mipmap/, color/, xml/" {
+                artifact "logos, ícones, imagens,\nseletores e backup"
+            }
+            package "raw/" {
+                artifact "vídeos MP4 locais"
+            }
+            package "values-* /" {
+                artifact "temas e dimensões por modo/orientação"
+            }
+        }
+
+        package "src/test/" {
+            artifact "WorkoutModelTest.java"
+        }
+        package "src/androidTest/" {
+            artifact "ExampleInstrumentedTest.java"
+        }
+    }
+
+    package "docs/" {
+        artifact "analise-projeto.md"
+        package "plantuml/" {
+            artifact "diagrama-classes.puml"
+            artifact "diagrama-classes-essencial.puml"
+            artifact "diagrama-sequencia-sistema.puml"
+            artifact "organizacao-arquitetura.puml"
+        }
+    }
+}
+
+cloud "Serviços externos" {
+    artifact "Firebase Authentication" as FirebaseAuth
+    database "Cloud Firestore\nusuarios/{uid}" as Firestore
+}
+
+component "AndroidX Lifecycle /\nLiveData / ViewModel" as Lifecycle
+component "Android Navigation Component" as Navigation
+component "Material Components" as Material
+component "Media3 / ExoPlayer" as Media3
+
+LoginActivity --> AuthViewModel
+RegisterActivity --> AuthViewModel
+PasswordResetActivity --> AuthViewModel
+AuthViewModel --> AuthRepository
+UserDataInputActivity --> UserProfileViewModel
+HomeFragment --> UserProfileViewModel
+UserProfileFragment --> UserProfileViewModel
+AccountSecurityFragment --> AccountSecurityViewModel
+WorkoutCategoryFragment --> WorkoutViewModel
+WorkoutSetupFragment --> WorkoutViewModel
+WorkoutCategoryFragment --> UserProfileViewModel : grava chave do vídeo
+WorkoutCategoryFragment --> WorkoutAdapter
+WorkoutSetupFragment --> WorkoutAdapter
+
+AuthViewModel ..> Lifecycle
+UserProfileViewModel ..> Lifecycle
+AccountSecurityViewModel ..> Lifecycle
+WorkoutViewModel ..> Lifecycle
+MainActivity --> Navigation
+VideoPlayerFragment --> Media3
+
+AuthRepository --> FirebaseAuth
+UserRepository --> FirebaseAuth
+UserRepository --> Firestore
+WorkoutRepository --> Firestore
+AccountSecurityRepository --> FirebaseAuth
+AccountSecurityRepository --> Firestore
+WorkoutRepository ..> ExerciseCatalog
+WorkoutAdapter ..> Exercise
+ExerciseCatalog "1" o-- "0..*" Exercise
+Exercise "0..*" --> "1" WorkoutCategory
+LoginActivity ..> Material
+UserDataInputActivity ..> Material
+AccountSecurityFragment ..> Material
+
+note bottom of WorkoutRepository
+    Seleção e total de séries são salvos no
+    documento do usuário. O restante do
+    estado da sessão não é um histórico.
+end note
+@enduml
