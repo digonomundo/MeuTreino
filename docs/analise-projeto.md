@@ -1,6 +1,6 @@
 # Análise técnica do MeuTreino
 
-Esta análise descreve o estado atual do código e complementa a documentação geral em [readme2.md](../readme2.md). Os fluxos citados foram conferidos com as Activities, Fragments, repositórios, Manifest, recursos e grafo de navegação do projeto.
+Esta análise descreve o estado atual do código e complementa a documentação geral em [README.md](../README.md). Os fluxos citados foram conferidos com as Activities, Fragments, repositórios, Manifest, recursos e grafo de navegação do projeto.
 
 ## Visão geral
 
@@ -59,7 +59,6 @@ Limitações observadas:
 - Nem todas as chaves de vídeo têm demonstração mapeada.
 - A leitura de preferências de treino usa fallback silencioso para o catálogo local em caso de falha de rede.
 - As métricas de IMC e hidratação são informativas e não substituem orientação profissional.
-- `local.properties` e `app/google-services.json` são necessários para o ambiente e devem corresponder à configuração Android/Firebase usada.
 
 ## Validação
 
